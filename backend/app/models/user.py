@@ -23,3 +23,4 @@ class User(Base):
 
     tasks: Mapped[list["Task"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     habits: Mapped[list["Habit"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    sleeps: Mapped[list["Sleep"]] = relationship(back_populates="user", cascade="all, delete-orphan")

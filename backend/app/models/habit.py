@@ -23,6 +23,9 @@ class Habit(Base):
     target_count: Mapped[int] = mapped_column(Integer, default=7)
     period_days: Mapped[int] = mapped_column(Integer, default=7)
 
+    current_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    best_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship(back_populates="habits")
 
