@@ -18,7 +18,7 @@ class Habit(Base):
     )
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
-    icon: Mapped[str | None] = mapped_column(String(10))
+    icon: Mapped[str] = mapped_column(String(10), nullable=False)
 
     target_count: Mapped[int] = mapped_column(Integer, default=7)
     period_days: Mapped[int] = mapped_column(Integer, default=7)
@@ -32,5 +32,5 @@ class Habit(Base):
     logs: Mapped[list["HabitLog"]] = relationship(back_populates="habit", cascade="all, delete-orphan")
 
     __table_args__ = (
-        CheckConstraint("target_count > 0", name="target_count_positive")
+        CheckConstraint("target_count > 0", name="target_count_positive"),
     )
