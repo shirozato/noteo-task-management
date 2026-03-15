@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import UUID, String, Text, ForeignKey, DateTime
+from sqlalchemy import UUID, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
@@ -19,7 +19,7 @@ class Sleep(Base):
     )
 
     bed_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    rise_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    rise_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship(back_populates="sleeps")
