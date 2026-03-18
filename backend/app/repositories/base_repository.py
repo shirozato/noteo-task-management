@@ -54,7 +54,6 @@ class BaseRepository(Generic[T]):
 
         return result.scalar_one_or_none()
 
-
     async def get_all(self) -> list[T]:
         stmt = select(self.model)
         result = await self.session.execute(stmt)
