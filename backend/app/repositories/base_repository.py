@@ -54,8 +54,12 @@ class BaseRepository(Generic[T]):
 
         return result.scalar_one_or_none()
 
-    async def get_all(self) -> list[T]:
+    async def get_all(self, user_id: int | None = None) -> list[T]:
         stmt = select(self.model)
+
+        if user_id is not None:
+            stmt = stmt.where(self.model.user_id == user_id)
+
         result = await self.session.execute(stmt)
 
         return list(result.scalars().all())
