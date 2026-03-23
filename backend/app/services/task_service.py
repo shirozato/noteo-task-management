@@ -21,11 +21,11 @@ class TaskService:
     async def get_task(self, uid: UUID) -> Task | None:
         return await self.repo.get_by_uid(uid)
 
-    async def get_tasks(self, user_id: int) -> list[Task]:
+    async def get_tasks(self, user_id: int) -> list[Task] | None:
         return await self.repo.get_all(user_id)
 
     async def delete_task(self, uid: UUID) -> Task | None:
         return await self.repo.delete(uid)
 
-    async def get_task_by_status(self, user_id: int, is_completed: bool) -> list[Task]:
+    async def get_task_by_status(self, user_id: int, is_completed: bool) -> list[Task] | None:
         return await self.repo.get_by_status(user_id, is_completed)
