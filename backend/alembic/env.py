@@ -9,7 +9,7 @@ from alembic import context
 
 from app.config import settings
 from app.db.database import Base
-from app.models import User, Task, Habit, HabitLog, Sleep
+from app.models import User, Task, Habit, HabitLog, Sleep, WaterEntry
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

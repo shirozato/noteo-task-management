@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import UUID, String, Text, ForeignKey, DateTime
+from sqlalchemy import UUID, String, Text, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
@@ -24,7 +24,11 @@ class Task(Base):
 
     is_completed: Mapped[bool] = mapped_column(default=False)
     deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
-    priority: Mapped[str | None] = mapped_column(default=None)
+    priority: Mapped[str | None] = mapped_column(String(10), default=None)
+
+    tags: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

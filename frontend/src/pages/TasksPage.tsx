@@ -1,219 +1,278 @@
-﻿import { useState, useCallback } from 'react'
-import { useTaskStore } from '../store'
-import { Sheet } from '../components/Sheet'
-import { tasksApi } from '../api'
-import type { Priority } from '../types'
+import React, { useState, useRef, useEffect } from 'react'
+import { C, DAYS_SHORT, MONTHS_RU, fmtDate, fmtDateDisplay, NOW } from '../tokens'
+import { GlassCard, SheetHandle, SectionLabel, AddBtn, Pill } from '../components/ui'
+import type { Task } from '../types'
 
-const PRIORITY_OPTIONS: { value: Priority | ''; label: string }[] = [
-  { value: '', label: 'Без приоритета' },
-  { value: 'high', label: '🔴 Высокий' },
-  { value: 'medium', label: '🟡 Средний' },
-  { value: 'low', label: '🟢 Низкий' },
-]
+export function AddTaskSheet({ onClose, onAdd, onSave, onArchive, onDelete, onToggleDone, initialTask }: {
+  onClose: () => void
+  onAdd?: (t: Task) => void
+  onSave?: (t: Task) => void
+  onArchive?: () => void
+  onDelete?: () => void
+  onToggleDone?: () => void
+  initialTask?: Task
+}) {
+  const isEdit = !!initialTask
+  const [title, setTitle] = useState(initialTask?.title || '')
+  const [priority, setPriority] = useState<Task['priority']>(initialTask?.priority || 'medium')
+  const [tags, setTags] = useState<string[]>(initialTask?.tags || [])
+  const [tagInput, setTagInput] = useState('')
+  const [showCal, setShowCal] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(initialTask?.dueDate ? new Date(initialTask.dueDate + 'T00:00') : (!isEdit ? new Date() : null))
+  const [viewMonth, setViewMonth] = useState(new Date())
+  const inputRef = useRef<HTMLInputElement>(null)
 
-function PriorityBadge({ p }: { p?: string | null }) {
-  if (!p) return null
-  const map: Record<string, { label: string; cls: string }> = {
-    high:   { label: 'Высокий', cls: 'badge badge-high' },
-    medium: { label: 'Средний', cls: 'badge badge-medium' },
-    low:    { label: 'Низкий',  cls: 'badge badge-low' },
-  }
-  const m = map[p]
-  if (!m) return null
-  return <span className={m.cls}>{m.label}</span>
-}
+  useEffect(() => { if (!isEdit) setTimeout(() => inputRef.current?.focus(), 350) }, [])
 
-function DeadlineBadge({ d }: { d?: string | null }) {
-  if (!d) return null
-  const date = new Date(d)
-  const now = new Date()
-  const diff = Math.ceil((date.getTime() - now.getTime()) / 86400000)
-  const label = diff === 0 ? 'Сегодня' : diff === 1 ? 'Завтра' : diff < 0 ? `${Math.abs(diff)}д назад` : `${diff}д`
-  const overdue = diff < 0
-  return (
-    <span className="badge badge-date" style={overdue ? { color: 'var(--rose)', background: 'rgba(244,63,94,.12)' } : {}}>
-      📅 {label}
-    </span>
-  )
-}
-
-export function TasksPage() {
-  const { tasks, toggle, remove, add } = useTaskStore()
-  const [tab, setTab] = useState<'all' | 'active' | 'done'>('all')
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [title, setTitle] = useState('')
-  const [desc, setDesc] = useState('')
-  const [priority, setPriority] = useState<Priority | ''>('')
-  const [deadline, setDeadline] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [notif, setNotif] = useState('')
-  const [deleting, setDeleting] = useState<string | null>(null)
-
-  const showNotif = (msg: string) => {
-    setNotif(msg)
-    setTimeout(() => setNotif(''), 2200)
+  const addTag = () => {
+    const t = tagInput.trim().replace(/^#/, '')
+    if (t && !tags.includes(t)) setTags(ts => [...ts, t])
+    setTagInput('')
   }
 
-  const filtered = tasks.filter((t) =>
-    tab === 'all' ? true : tab === 'active' ? !t.is_completed : t.is_completed
-  )
-
-  const handleToggle = useCallback((uid: string, done: boolean) => {
-    toggle(uid)
-    if (!done) showNotif('✅ Задача выполнена!')
-  }, [toggle])
-
-  const handleDelete = (uid: string) => {
-    setDeleting(uid)
-    setTimeout(() => {
-      remove(uid)
-      setDeleting(null)
-      showNotif('🗑 Задача удалена')
-    }, 300)
-  }
-
-  const handleSave = async () => {
+  const submit = () => {
     if (!title.trim()) return
-    setSaving(true)
-    try {
-      const t = await tasksApi.create({
-        title: title.trim(),
-        description: desc.trim() || undefined,
-        priority: priority || undefined,
-        deadline: deadline || undefined,
-      })
-      add(t)
-    } catch {
-      add({
-        uid: crypto.randomUUID(),
-        title: title.trim(),
-        description: desc.trim() || undefined,
-        priority: priority || undefined,
-        deadline: deadline || undefined,
-        is_completed: false,
-        created_at: new Date().toISOString(),
-      })
-    } finally {
-      setSaving(false)
-      setSheetOpen(false)
-      setTitle(''); setDesc(''); setPriority(''); setDeadline('')
-      showNotif('✨ Задача добавлена')
+    const dueDate = selectedDate ? fmtDate(selectedDate) : null
+    if (isEdit) {
+      onSave?.({ ...initialTask!, title, priority, dueDate, tags })
+    } else {
+      onAdd?.({ id: Date.now(), title, done: false, priority, dueDate, tags, archivedAt: null, doneAt: null })
     }
+    onClose()
   }
 
-  const now = new Date()
-  const greet = now.getHours() < 12 ? 'Доброе утро' : now.getHours() < 18 ? 'Добрый день' : 'Добрый вечер'
-  const doneCount = tasks.filter((t) => t.is_completed).length
-  const totalCount = tasks.length
+  const y = viewMonth.getFullYear(), mo = viewMonth.getMonth()
+  const calDays = new Date(y, mo + 1, 0).getDate()
+  const blank = new Date(y, mo, 1).getDay()
+  const today = new Date(); today.setHours(0, 0, 0, 0)
 
   return (
-    <div className="page">
-      {notif && <div className="notif">{notif}</div>}
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 100, animation: 'fadeIn 0.2s' }} />
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, margin: '0 auto', width: '100%', maxWidth: 430,
+        background: 'var(--c-sheet)', borderTop: `1px solid ${C.borderHi}`,
+        borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 101,
+        animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
+        paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
+        maxHeight: '90vh', overflowY: 'auto',
+      }}>
+        <SheetHandle />
+        <div style={{ padding: '12px 20px 24px' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 18 }}>{isEdit ? 'Редактировать' : 'Новая задача'}</div>
 
-      <div className="page-header">
-        <div>
-          <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, marginBottom: 2 }}>{greet} 👋</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>
-            Задачи
-            {totalCount > 0 && (
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--muted)', marginLeft: 8 }}>
-                {doneCount}/{totalCount}
-              </span>
+          <div style={{ background: C.s1, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 16px', marginBottom: 14 }}>
+            <input ref={inputRef} type="text" value={title} onChange={e => setTitle(e.target.value)}
+              placeholder="Название задачи…" onKeyDown={e => e.key === 'Enter' && submit()} style={{ fontSize: 16, color: C.text }} />
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 13, color: C.textSub, marginBottom: 8 }}>Приоритет</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {([['high', 'Высокий', '#ef6060'], ['medium', 'Средний', '#f0a040'], ['low', 'Низкий', '#60a8ef']] as const).map(([v, l, clr]) => (
+                <button key={v} onClick={() => setPriority(v)} style={{
+                  flex: 1, padding: '8px', borderRadius: 12, cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                  background: priority === v ? clr + '22' : C.s1, border: `1px solid ${priority === v ? clr + '66' : C.border}`,
+                  color: priority === v ? clr : C.textSub, transition: 'all 0.2s',
+                }}>{l}</button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ fontSize: 13, color: C.textSub }}>Дата</div>
+              <button onClick={() => setShowCal(v => !v)} style={{ fontSize: 12, color: C.gold, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                {selectedDate ? fmtDateDisplay(fmtDate(selectedDate)) : showCal ? 'Скрыть' : 'Выбрать'}
+              </button>
+            </div>
+            {showCal && (
+              <GlassCard style={{ padding: '14px', marginBottom: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <button onClick={() => setViewMonth(d => new Date(d.getFullYear(), d.getMonth() - 1, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textSub, fontSize: 18, padding: '4px 8px' }}>‹</button>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{MONTHS_RU[mo]} {y}</span>
+                  <button onClick={() => setViewMonth(d => new Date(d.getFullYear(), d.getMonth() + 1, 1))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textSub, fontSize: 18, padding: '4px 8px' }}>›</button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 2, marginBottom: 6 }}>
+                  {DAYS_SHORT.map(d => <div key={d} style={{ textAlign: 'center', fontSize: 10, color: C.textMute, padding: '4px 0' }}>{d}</div>)}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 3 }}>
+                  {Array(blank).fill(null).map((_, i) => <div key={'b' + i} />)}
+                  {Array(calDays).fill(null).map((_, i) => {
+                    const d = new Date(y, mo, i + 1)
+                    const isSel = selectedDate && d.toDateString() === selectedDate.toDateString()
+                    const isToday = d.toDateString() === today.toDateString()
+                    return (
+                      <button key={i} onClick={() => { setSelectedDate(d); setShowCal(false) }} style={{
+                        aspectRatio: '1', borderRadius: 8, border: 'none', cursor: 'pointer',
+                        fontSize: 12, fontWeight: isSel || isToday ? 700 : 400,
+                        background: isSel ? C.gold : isToday ? 'rgba(196,154,90,0.15)' : 'transparent',
+                        color: isSel ? 'white' : isToday ? C.gold : C.text, transition: 'all 0.15s',
+                      }}>{i + 1}</button>
+                    )
+                  })}
+                </div>
+              </GlassCard>
             )}
           </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: C.textSub, marginBottom: 8 }}>Теги</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+              {tags.map(tag => (
+                <span key={tag} onClick={() => setTags(ts => ts.filter(t => t !== tag))} style={{
+                  fontSize: 12, color: C.gold, background: C.goldDim, border: `1px solid rgba(196,154,90,0.3)`,
+                  padding: '4px 10px', borderRadius: 10, cursor: 'pointer',
+                }}>#{tag} ×</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ flex: 1, background: C.s1, border: `1px solid ${C.border}`, borderRadius: 12, padding: '11px 14px' }}>
+                <input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)}
+                  placeholder="Название тега…" style={{ fontSize: 14, width: '100%', color: C.text }}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag() } }}
+                />
+              </div>
+              <button onClick={addTag} style={{
+                padding: '11px 16px', borderRadius: 12, border: `1px solid rgba(196,154,90,0.4)`,
+                background: 'rgba(196,154,90,0.13)', cursor: 'pointer', color: C.gold,
+                fontSize: 14, fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap',
+              }}>+</button>
+            </div>
+          </div>
+
+          <button onClick={submit} style={{
+            width: '100%', padding: '15px', borderRadius: 16, border: 'none', cursor: title.trim() ? 'pointer' : 'default',
+            background: title.trim() ? 'linear-gradient(135deg,#c49a5a,#a07040)' : C.s1,
+            outline: title.trim() ? '1px solid rgba(196,154,90,0.4)' : `1px solid ${C.border}`,
+            color: title.trim() ? 'white' : C.textMute, fontSize: 16, fontWeight: 700,
+            boxShadow: title.trim() ? '0 4px 20px rgba(196,154,90,0.25)' : 'none', transition: 'all 0.3s',
+          }}>{isEdit ? 'Сохранить' : 'Добавить задачу'}</button>
+
+          {isEdit && (
+            <>
+              <button onClick={() => { onToggleDone?.(); onClose() }} style={{
+                width: '100%', marginTop: 10, padding: '14px', borderRadius: 14, border: `1px solid ${C.border}`, cursor: 'pointer',
+                background: initialTask!.done ? C.s2 : 'rgba(74,184,160,0.10)',
+                color: initialTask!.done ? C.text : '#5fc4a8', fontSize: 15, fontWeight: 600,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                {initialTask!.done ? 'Отметить невыполненной' : 'Отметить выполненной'}
+              </button>
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <button onClick={() => { onArchive?.(); onClose() }} style={{
+                  flex: 1, padding: '13px', borderRadius: 14, border: `1px solid ${C.border}`, cursor: 'pointer',
+                  background: C.s1, color: C.textSub, fontSize: 14, fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /><line x1="10" y1="12" x2="14" y2="12" /></svg>
+                  В архив
+                </button>
+                <button onClick={() => { onDelete?.(); onClose() }} style={{
+                  flex: 1, padding: '13px', borderRadius: 14, border: '1px solid rgba(239,96,96,0.2)', cursor: 'pointer',
+                  background: 'rgba(239,96,96,0.08)', color: '#ef6060', fontSize: 14, fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" /></svg>
+                  Удалить
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default function TasksPage({
+  tasks, setTasks, onAdd, onEdit,
+}: {
+  tasks: Task[]
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+  onAdd: () => void
+  onEdit: (t: Task) => void
+}) {
+  const [filter, setFilter] = useState<'today' | 'all' | 'important'>('today')
+  const today = new Date()
+  const dateStr = today.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' }).toUpperCase()
+
+  const live = tasks.filter(t => !t.archivedAt)
+  const visible = live.filter(t =>
+    filter === 'today' ? !t.dueDate || t.dueDate === fmtDate(today) :
+    filter === 'important' ? t.priority === 'high' : true
+  )
+  const active = visible.filter(t => !t.done)
+  const done = visible.filter(t => t.done)
+  const toggle = (id: number) => setTasks(ts => ts.map(t => t.id === id ? { ...t, done: !t.done, doneAt: !t.done ? NOW() : null } : t))
+  const prColor = (p: string) => p === 'high' ? '#ef6060' : p === 'medium' ? '#f0a040' : '#60a8ef'
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ padding: '20px 20px 14px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: C.textMute, letterSpacing: '0.1em' }}>{dateStr}</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, letterSpacing: '-0.5px' }}>Задачи</h1>
+          {live.length > 0 && <AddBtn onPress={onAdd} />}
+        </div>
+        <div style={{ display: 'flex', gap: 4, marginTop: 12 }}>
+          {([['today', 'Сегодня'], ['all', 'Все'], ['important', 'Важные']] as const).map(([v, l]) => (
+            <Pill key={v} active={filter === v} onClick={() => setFilter(v)}>{l}</Pill>
+          ))}
         </div>
       </div>
 
-      <div className="scroll">
-        <div className="tab-row">
-          {(['all', 'active', 'done'] as const).map((t) => (
-            <button key={t} className={`tab-btn${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>
-              {t === 'all' ? 'Все' : t === 'active' ? 'Активные' : 'Готово'}
-            </button>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 20px' }}>
+        {live.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: C.textMute }}>
+            <div style={{ fontSize: 52, marginBottom: 16, animation: 'floaty 4s ease-in-out infinite' }}>✦</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: C.textSub, marginBottom: 8 }}>Нет задач</div>
+            <div style={{ fontSize: 14, color: C.textMute, lineHeight: 1.6 }}>Нажми кнопку ниже<br/>чтобы добавить первую задачу</div>
+          </div>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {active.map(task => (
+            <GlassCard key={task.id} onClick={() => onEdit(task)} style={{ padding: '14px 16px', cursor: 'pointer', userSelect: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div onClick={e => { e.stopPropagation(); toggle(task.id) }} style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${C.borderHi}`, flexShrink: 0, cursor: 'pointer' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 500, color: C.text }}>{task.title}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: prColor(task.priority) }} />
+                      <span style={{ fontSize: 12, color: C.textSub }}>{task.dueDate ? fmtDateDisplay(task.dueDate) : 'Сегодня'}</span>
+                    </div>
+                    {task.tags.map(tag => (
+                      <span key={tag} style={{ fontSize: 11, color: C.textSub, background: C.s2, padding: '2px 8px', borderRadius: 8, border: `1px solid ${C.border}` }}>#{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
           ))}
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="empty">
-            <div className="empty-icon">{tab === 'done' ? '🎉' : '📋'}</div>
-            <div className="empty-text">
-              {tab === 'done' ? 'Ещё ничего не выполнено' : 'Список задач пуст'}
-            </div>
-            <div className="empty-sub">
-              {tab !== 'done' ? 'Нажми + чтобы добавить задачу' : 'Выполняй задачи — они будут здесь'}
+        {done.length > 0 && (
+          <div style={{ marginTop: 22 }}>
+            <SectionLabel>Выполнено · {done.length}</SectionLabel>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {done.map(task => (
+                <GlassCard key={task.id} onClick={() => onEdit(task)} style={{ padding: '14px 16px', cursor: 'pointer', opacity: 0.5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div onClick={e => { e.stopPropagation(); toggle(task.id) }} style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: `1.5px solid rgba(255,255,255,0.2)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                      <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </div>
+                    <div style={{ fontSize: 15, color: C.textSub, textDecoration: 'line-through' }}>{task.title}</div>
+                  </div>
+                </GlassCard>
+              ))}
             </div>
           </div>
-        ) : (
-          filtered.map((task, i) => (
-            <div
-              key={task.uid}
-              className={`task-item${task.is_completed ? ' done' : ''}${deleting === task.uid ? ' done' : ''}`}
-              data-p={task.priority ?? undefined}
-              style={{ animationDelay: `${i * 40}ms`, opacity: deleting === task.uid ? 0 : undefined, transform: deleting === task.uid ? 'translateX(20px)' : undefined }}
-            >
-              <div
-                className={`task-cb${task.is_completed ? ' checked' : ''}`}
-                onClick={() => handleToggle(task.uid, task.is_completed)}
-              >
-                {task.is_completed && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                )}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className={`task-title${task.is_completed ? ' done' : ''}`}>{task.title}</div>
-                {task.description && (
-                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 3, lineHeight: 1.4 }}>{task.description}</div>
-                )}
-                <div className="task-meta">
-                  <PriorityBadge p={task.priority} />
-                  <DeadlineBadge d={task.deadline} />
-                </div>
-              </div>
-              <button
-                className="btn-icon"
-                style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0 }}
-                onClick={() => handleDelete(task.uid)}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round">
-                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                </svg>
-              </button>
-            </div>
-          ))
         )}
       </div>
-
-      <button className="fab" style={{ bottom: 'calc(var(--nav-h) + 16px)' }} onClick={() => setSheetOpen(true)}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
-
-      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Новая задача">
-        <div className="input-wrap">
-          <label className="input-label">Название</label>
-          <input className="input-field" placeholder="Что нужно сделать?" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
-        </div>
-        <div className="input-wrap">
-          <label className="input-label">Описание</label>
-          <textarea className="input-field" placeholder="Детали (необязательно)" value={desc} onChange={(e) => setDesc(e.target.value)} rows={2} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }} className="mb16">
-          <div className="input-wrap" style={{ marginBottom: 0 }}>
-            <label className="input-label">Приоритет</label>
-            <select className="input-field" value={priority} onChange={(e) => setPriority(e.target.value as Priority | '')} style={{ WebkitAppearance: 'none' }}>
-              {PRIORITY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-          <div className="input-wrap" style={{ marginBottom: 0 }}>
-            <label className="input-label">Дедлайн</label>
-            <input className="input-field" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} style={{ colorScheme: 'dark' }} />
-          </div>
-        </div>
-        <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleSave} disabled={saving || !title.trim()}>
-          {saving ? 'Сохранение...' : 'Добавить задачу'}
-        </button>
-      </Sheet>
     </div>
   )
 }

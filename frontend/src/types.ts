@@ -1,42 +1,51 @@
-﻿export type Priority = 'low' | 'medium' | 'high'
-export type HabitColor = 'warm' | 'blue' | 'teal' | 'purple' | 'rose' | 'olive' | 'forest' | 'default'
-
 export interface Task {
-  uid: string
+  id: number
+  uid?: string
   title: string
-  description?: string | null
-  is_completed: boolean
-  deadline?: string | null
-  priority?: Priority | null
-  created_at: string
-}
-
-export interface HabitLog {
-  uid: string
-  logged_at: string
+  done: boolean
+  priority: 'high' | 'medium' | 'low'
+  dueDate: string | null
+  tags: string[]
+  archivedAt: number | null
+  doneAt: number | null
 }
 
 export interface Habit {
-  uid: string
+  id: number
+  uid?: string
   title: string
   icon: string
-  target_count: number
-  current_streak: number
-  best_streak: number
-  logs: HabitLog[]
-  color?: HabitColor
-}
-
-export interface Sleep {
-  uid: string
-  bed_time: string
-  rise_time?: string | null
+  color: string
+  streak: number
+  freq: string
+  days: string
+  completedToday: boolean
+  size: 's' | 'm' | 'l'
+  wide: boolean
+  archivedAt: number | null
 }
 
 export interface User {
-  uid: string
   name: string
   email: string
+  avatar?: string
+  avatarColor?: string
 }
 
-export type TabId = 'tasks' | 'habits' | 'sleep' | 'analytics' | 'profile'
+export interface SleepEntry {
+  bed: string
+  wake: string
+  uid?: string
+}
+
+export type SleepLog = Record<string, SleepEntry>
+
+export interface WaterEntry {
+  id?: number
+  amount: number
+  time: number
+}
+
+export type WaterLog = Record<string, { entries: WaterEntry[] }>
+
+export type TabId = 'tasks' | 'habits' | 'sleep' | 'water' | 'profile'

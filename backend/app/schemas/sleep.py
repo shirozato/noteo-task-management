@@ -19,6 +19,7 @@ class SleepUpdate(BaseModel):
 
 
 class SleepRead(SleepBase):
+    id: int
     uid: uuid.UUID
 
     model_config = ConfigDict(from_attributes=True)
