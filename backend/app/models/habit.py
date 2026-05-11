@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import UUID, String, ForeignKey, Integer, CheckConstraint
+from sqlalchemy import UUID, String, ForeignKey, Integer, CheckConstraint, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
@@ -20,11 +21,19 @@ class Habit(Base):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     icon: Mapped[str] = mapped_column(String(10), nullable=False)
 
+    color: Mapped[str] = mapped_column(String(20), default="default", nullable=False)
+    freq: Mapped[str] = mapped_column(String(20), default="daily", nullable=False)
+    days: Mapped[str] = mapped_column(String(7), default="1111111", nullable=False)
+    size: Mapped[str] = mapped_column(String(1), default="m", nullable=False)
+    wide: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
     target_count: Mapped[int] = mapped_column(Integer, default=7)
     period_days: Mapped[int] = mapped_column(Integer, default=7)
 
     current_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     best_streak: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship(back_populates="habits")

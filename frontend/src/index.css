@@ -1,0 +1,209 @@
+:root {
+  --c-bg: #0d0d0d;
+  --c-bg-body: #080808;
+  --c-s1: rgba(255,255,255,0.04);
+  --c-s2: rgba(255,255,255,0.07);
+  --c-s3: rgba(255,255,255,0.13);
+  --c-border: rgba(255,255,255,0.08);
+  --c-border-hi: rgba(255,255,255,0.15);
+  --c-text: #f2f2f2;
+  --c-text-sub: rgba(255,255,255,0.45);
+  --c-text-mute: rgba(255,255,255,0.22);
+  --c-sheet: #161616;
+  --c-sheet-alt: #181818;
+  --c-tabbar: rgba(16,16,20,0.95);
+  --c-tabbar-border: rgba(255,255,255,0.1);
+  --c-tabbar-border-top: rgba(255,255,255,0.18);
+  --c-card-shadow: rgba(0,0,0,0.4);
+  --c-card-inner: rgba(255,255,255,0.06);
+  --c-card-bg: rgba(11,11,14,0.98);
+  --c-surf-lo: rgba(255,255,255,0.05);
+  --c-surf-mid: rgba(255,255,255,0.08);
+  --c-surf-hi: rgba(255,255,255,0.13);
+  --c-surf-top: rgba(255,255,255,0.28);
+  --c-surf-max: rgba(255,255,255,0.38);
+  --c-on-dark: rgba(255,255,255,0.22);
+}
+
+[data-theme="light"] {
+  --c-bg: #f4f3ef;
+  --c-bg-body: #e8e6e0;
+  --c-s1: rgba(0,0,0,0.05);
+  --c-s2: rgba(0,0,0,0.08);
+  --c-s3: rgba(0,0,0,0.13);
+  --c-border: rgba(0,0,0,0.18);
+  --c-border-hi: rgba(0,0,0,0.30);
+  --c-text: #0d0d10;
+  --c-text-sub: rgba(0,0,0,0.48);
+  --c-text-mute: rgba(0,0,0,0.28);
+  --c-sheet: #ffffff;
+  --c-sheet-alt: #f8f8fc;
+  --c-tabbar: rgba(248,248,252,0.96);
+  --c-tabbar-border: rgba(0,0,0,0.08);
+  --c-tabbar-border-top: rgba(0,0,0,0.13);
+  --c-card-shadow: rgba(0,0,0,0.18);
+  --c-card-inner: rgba(0,0,0,0.05);
+  --c-card-bg: rgba(255,255,255,0.92);
+  --c-surf-lo: rgba(0,0,0,0.04);
+  --c-surf-mid: rgba(0,0,0,0.06);
+  --c-surf-hi: rgba(0,0,0,0.09);
+  --c-surf-top: rgba(0,0,0,0.25);
+  --c-surf-max: rgba(0,0,0,0.32);
+  --c-on-dark: rgba(0,0,0,0.22);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  background: var(--c-bg-body);
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Manrope', -apple-system, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
+
+input, textarea, button { font-family: inherit; }
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--c-text);
+  width: 100%;
+}
+
+input[type="time"] {
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4);
+}
+
+@keyframes slideInRight  { from { opacity:0; transform:translateX(28px) } to { opacity:1; transform:translateX(0) } }
+@keyframes slideInLeft   { from { opacity:0; transform:translateX(-28px) } to { opacity:1; transform:translateX(0) } }
+@keyframes slideUp       { from { transform:translateY(110%) } to { transform:translateY(0) } }
+@keyframes fadeIn        { from { opacity:0 } to { opacity:1 } }
+@keyframes popIn         { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
+@keyframes fireFlicker   { 0%,100%{transform:scale(1) rotate(-4deg)} 25%{transform:scale(1.15) rotate(4deg) translateY(-2px)} 50%{transform:scale(0.92) rotate(-2deg)} 75%{transform:scale(1.1) rotate(3deg) translateY(-1px)} }
+@keyframes authIn        { from{opacity:0;transform:translateY(24px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes pulseGlow     { 0%,100%{box-shadow:0 0 12px rgba(196,154,90,0.3)} 50%{box-shadow:0 0 24px rgba(196,154,90,0.5)} }
+@keyframes barGrow       { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+@keyframes streakBounce  { 0%{transform:scale(1)} 40%{transform:scale(1.3)} 100%{transform:scale(1)} }
+@keyframes twinkle       { 0%,100%{opacity:0.25;transform:scale(0.85)} 50%{opacity:0.95;transform:scale(1.1)} }
+@keyframes driftRight    { from{transform:translateX(0)} to{transform:translateX(180%)} }
+@keyframes driftLeft     { from{transform:translateX(0)} to{transform:translateX(-180%)} }
+@keyframes zFloat        { 0%{transform:translateY(0);opacity:0.4} 50%{transform:translateY(-6px);opacity:1} 100%{transform:translateY(-12px);opacity:0} }
+@keyframes dropFall      { 0%{transform:translateY(-30px);opacity:0} 25%{opacity:1} 70%{transform:translateY(40px) scaleY(1.1);opacity:1} 75%{transform:translateY(48px) scaleY(0.6) scaleX(1.3);opacity:0} 100%{transform:translateY(48px);opacity:0} }
+@keyframes ripple        { 0%{transform:scale(0.4);opacity:0.8} 100%{transform:scale(2.2);opacity:0} }
+@keyframes splash        { 0%,55%{transform:translate(0,0);opacity:0} 60%{transform:translate(0,0);opacity:1} 100%{transform:translate(0,-18px);opacity:0} }
+@keyframes orbit         { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes orbitRev      { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+@keyframes floaty        { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-8px) rotate(2deg)} }
+@keyframes shimmer       { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes drawIn        { from{stroke-dashoffset:var(--len,200)} to{stroke-dashoffset:0} }
+@keyframes checkBounce   { 0%{transform:scale(0)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
+@keyframes rowFly        { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+@keyframes barRise       { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+@keyframes glowPulse     { 0%,100%{filter:drop-shadow(0 0 8px rgba(196,154,90,0.4))} 50%{filter:drop-shadow(0 0 22px rgba(196,154,90,0.7))} }
+@keyframes onbWaveA      { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-24px)} }
+@keyframes onbWaveB      { 0%,100%{transform:translateX(0)} 50%{transform:translateX(20px)} }
+@keyframes onbBubble     { 0%{transform:translateY(188px) scale(0.5);opacity:0} 15%{opacity:0.8} 100%{transform:translateY(72px) scale(1);opacity:0} }
+@keyframes starPulse     { 0%,100%{opacity:0.05} 40%{opacity:0.9} 60%{opacity:0.9} }
+@keyframes habitCardGlow { 0%,100%{opacity:0.6} 50%{opacity:1} }
+@keyframes orbitDot      { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes waterRipple   { 0%{transform:scale(0.95);opacity:0.7} 50%{transform:scale(1.02);opacity:1} 100%{transform:scale(0.95);opacity:0.7} }
+@keyframes moonGlowAnim  { 0%,100%{opacity:0.65} 50%{opacity:1} }
+@keyframes fireGlow      { 0%,100%{transform:scale(1) translateY(0)} 40%{transform:scale(1.08) translateY(-1px)} 70%{transform:scale(0.96) translateY(0.5px)} }
+@keyframes btnBorderSpin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+@keyframes btnShimmer    { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes btnGlow       { 0%,100%{box-shadow:0 4px 20px rgba(196,154,90,0.28),0 0 0 0 rgba(196,154,90,0)} 50%{box-shadow:0 6px 32px rgba(196,154,90,0.5),0 0 0 6px rgba(196,154,90,0.06)} }
+
+.ui-btn {
+  --btn-bg: linear-gradient(160deg, rgb(28,28,32), rgb(18,18,22));
+  --btn-text: #f2f2f2;
+  --btn-glow: rgba(196,154,90,0.28);
+
+  width: 100%;
+  padding: 15px 36px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s, border-color 0.3s;
+  box-shadow: 0 4px 22px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.ui-btn:hover {
+  border-color: rgba(196,154,90,0.35);
+  box-shadow: 0 6px 32px rgba(196,154,90,0.22), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.ui-btn:active { transform: scale(0.97); }
+.ui-btn::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 50%, transparent 80%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+.ui-btn:hover::after {
+  animation: uiBtnShimmer 0.6s ease forwards;
+}
+@keyframes uiBtnShimmer {
+  from { transform: translateX(-110%); }
+  to   { transform: translateX(110%); }
+}
+.ui-btn > span { position: relative; }
+/* ─── LIGHT THEME OVERRIDES ─────────────────────────────────────────────────── */
+[data-theme="light"] .ui-btn {
+  --btn-bg: linear-gradient(160deg, #1a1a1e, #111115);
+  border-color: rgba(0,0,0,0.18);
+  box-shadow: 0 4px 22px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+[data-theme="light"] .ui-btn:hover {
+  box-shadow: 0 6px 28px rgba(196,154,90,0.25), 0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+@keyframes moonFloat     { 0%,100%{transform:translateY(0px) rotate(-1.5deg)} 35%{transform:translateY(-9px) rotate(1deg)} 70%{transform:translateY(-4px) rotate(-0.5deg)} }
+@keyframes zRise1        { 0%{opacity:0;transform:translate(0,0) scale(0.7)} 18%{opacity:0.5;transform:translate(0,-5px) scale(1)} 75%{opacity:0.5;transform:translate(0,-22px) scale(1)} 100%{opacity:0;transform:translate(0,-34px) scale(0.85)} }
+@keyframes zRise2        { 0%{opacity:0;transform:translate(0,0) scale(0.7)} 18%{opacity:0.68;transform:translate(0,-5px) scale(1)} 75%{opacity:0.68;transform:translate(0,-22px) scale(1)} 100%{opacity:0;transform:translate(0,-34px) scale(0.85)} }
+@keyframes zRise3        { 0%{opacity:0;transform:translate(0,0) scale(0.7)} 18%{opacity:0.85;transform:translate(0,-5px) scale(1)} 75%{opacity:0.85;transform:translate(0,-22px) scale(1)} 100%{opacity:0;transform:translate(0,-34px) scale(0.85)} }
+@keyframes waterSloshA   { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-18px)} 75%{transform:translateX(14px)} }
+@keyframes waterSloshB   { 0%,100%{transform:translateX(0)} 30%{transform:translateX(16px)} 70%{transform:translateX(-12px)} }
+@keyframes waterBarBob   { 0%,100%{transform:scaleY(1)} 40%{transform:scaleY(1.07)} 70%{transform:scaleY(0.97)} }
+@keyframes waterBarBob2  { 0%,100%{transform:scaleY(1)} 30%{transform:scaleY(0.96)} 65%{transform:scaleY(1.08)} }

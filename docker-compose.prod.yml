@@ -1,0 +1,57 @@
+services:
+
+  # ─── PostgreSQL ─────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-noteo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-noteo}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # NOT exposed to host — only internal Docker network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-noteo} -d ${POSTGRES_DB:-noteo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  # ─── Backend (FastAPI) ───────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-noteo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-noteo}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_EXPIRE_MINUTES: ${JWT_ACCESS_EXPIRE_MINUTES:-43200}
+      DEBUG: "false"
+    ports:
+      - "127.0.0.1:8000:8000"   # only accessible from localhost (nginx proxy)
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+      "
+
+  # ─── Frontend (nginx + built Vite PWA) ──────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://api.noteo.online
+    restart: always
+    ports:
+      - "127.0.0.1:3001:80"   # only accessible from localhost (nginx proxy)
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

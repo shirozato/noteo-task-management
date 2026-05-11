@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- PWA / Theme -->
+    <meta name="theme-color" content="#0d0d0d" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- iOS specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Noteo" />
+
+    <!-- iOS icon (Safari "На экран Домой") -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <!-- iOS Splash screens (portrait) -->
+    <!-- iPhone 17 Pro Max / 16 Pro Max — 440×956 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1320x2868.png" />
+    <!-- iPhone 17 Pro / 17 / 16 Pro — 402×874 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1206x2622.png" />
+    <!-- iPhone 16 Plus / 15 Pro Max / 15 Plus / 14 Pro Max — 430×932 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1290x2796.png" />
+    <!-- iPhone 16 / 15 Pro / 15 / 14 Pro — 393×852 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1179x2556.png" />
+    <!-- iPhone 14 Plus / 13 Pro Max / 12 Pro Max — 428×926 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1284x2778.png" />
+    <!-- iPhone Air / 17e / 16e / 14 / 13 Pro / 13 / 12 Pro / 12 — 390×844 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1170x2532.png" />
+    <!-- iPhone 13 mini / 12 mini / 11 Pro / XS / X — 375×812 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1125x2436.png" />
+    <!-- iPhone 11 Pro Max / XS Max — 414×896 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1242x2688.png" />
+    <!-- iPhone 11 / XR — 414×896 @2x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+      href="/icons/splash-828x1792.png" />
+    <!-- iPhone 8 Plus / 7 Plus / 6s Plus — 414×736 @3x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+      href="/icons/splash-1242x2208.png" />
+    <!-- iPhone 8 / 7 / 6s / 6 / 4.7 SE — 375×667 @2x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+      href="/icons/splash-750x1334.png" />
+    <!-- iPhone SE 1st gen / iPod touch — 320×568 @2x -->
+    <link rel="apple-touch-startup-image"
+      media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+      href="/icons/splash-640x1136.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-32.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <!-- Manifest (генерируется Vite PWA) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- SEO -->
+    <meta name="description" content="Noteo — трекер привычек, задач и сна" />
+    <meta name="robots" content="noindex" />
+
+    <!-- Шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <title>Noteo</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

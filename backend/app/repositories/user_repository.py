@@ -9,7 +9,11 @@ class UserRepository(BaseRepository[User]):
         super().__init__(session, User)
 
     async def get_by_email(self, email: str) -> User | None:
-        stmt = select(self.model).where(User.email == email)
+        stmt = select(self.model).where(User.email == email.lower().strip())
         result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
+    async def get_by_id(self, user_id: int) -> User | None:
+        stmt = select(self.model).where(User.id == user_id)
+        result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
