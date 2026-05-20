@@ -61,7 +61,7 @@
 
 html {
   height: 100%;
-  background: #0d0d0d;
+  background: var(--c-bg);
 }
 
 html, body {
@@ -70,7 +70,7 @@ html, body {
 
 body {
   height: 100%;
-  background: var(--c-bg-body);
+  background: var(--c-bg);
   font-family: 'Manrope', -apple-system, sans-serif;
   display: flex;
   align-items: center;

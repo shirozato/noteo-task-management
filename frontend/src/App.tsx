@@ -32,7 +32,11 @@ const TABS: { id: TabId; label: string; icon: (active: boolean, theme: 'dark' | 
 function TabBar({ active, onChange, theme }: { active: TabId; onChange: (t: TabId) => void; theme: 'dark' | 'light' }) {
   const [pressed, setPressed] = useState<TabId | null>(null)
   return (
-    <div style={{ padding: '0 14px', paddingBottom: 'max(env(safe-area-inset-bottom,0px),18px)', flexShrink: 0 }}>
+    <div style={{
+      padding: '0 14px', paddingBottom: 'max(env(safe-area-inset-bottom,0px),18px)', flexShrink: 0,
+      background: 'var(--c-tabbar)',
+      backdropFilter: 'blur(50px) saturate(200%)', WebkitBackdropFilter: 'blur(50px) saturate(200%)',
+    }}>
       <div style={{
         display: 'flex', alignItems: 'center',
         background: 'var(--c-tabbar)',
