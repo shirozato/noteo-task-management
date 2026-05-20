@@ -390,7 +390,7 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
         background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,154,90,0.08) 0%, transparent 60%), #0d0d0d',
         animation: 'fadeIn 0.4s ease',
       }}>
-      <div style={{ padding: '20px 22px', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
+      <div style={{ padding: '22px', paddingTop: 'max(env(safe-area-inset-top, 0px) + 8px, 20px)', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
         <button onClick={onDone} style={{ background: 'none', border: 'none', color: C.textSub, fontSize: 14, cursor: 'pointer', padding: '6px 4px' }}>
           Пропустить
         </button>
@@ -406,7 +406,7 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
         <div style={{ fontSize: 14, color: C.textSub, textAlign: 'center', lineHeight: 1.5, maxWidth: 300, position: 'relative', zIndex: 1 }}>{cur.tagline}</div>
       </div>
 
-      <div style={{ padding: '0 28px 36px', flexShrink: 0 }}>
+      <div style={{ padding: '0 28px', paddingBottom: 'max(env(safe-area-inset-bottom, 0px) + 16px, 36px)', flexShrink: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 22 }}>
           {SLIDES.map((_, i) => (
             <div key={i} style={{

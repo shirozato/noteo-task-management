@@ -381,7 +381,7 @@ export default function App() {
   }
 
   if (!introDone || !dataLoaded) return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) * -1)', bottom: 'calc(env(safe-area-inset-bottom, 0px) * -1)', left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
       <OnboardingScreen onDone={() => {
         localStorage.setItem('noteo-onboarded', '1')
         setIntroDone(true)
@@ -390,7 +390,7 @@ export default function App() {
   )
 
   if (!user) return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) * -1)', bottom: 'calc(env(safe-area-inset-bottom, 0px) * -1)', left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: -80, right: -60, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle,rgba(196,154,90,0.1),transparent 70%)', pointerEvents: 'none' }} />
       <AuthScreen onLogin={handleLogin} />
     </div>
@@ -414,9 +414,12 @@ export default function App() {
   return (
     <div style={{
       position: 'fixed',
-      top: 0, bottom: 0, left: 0, right: 0,
+      top: 'calc(env(safe-area-inset-top, 0px) * -1)',
+      bottom: 'calc(env(safe-area-inset-bottom, 0px) * -1)',
+      left: 0, right: 0,
       maxWidth: 430, margin: '0 auto',
       display: 'flex', flexDirection: 'column',
+      paddingTop: 'env(safe-area-inset-top, 0px)',
       background: theme === 'dark'
         ? 'radial-gradient(ellipse 80% 50% at 70% 5%, rgba(160,100,200,0.07) 0%,transparent 55%), radial-gradient(ellipse 70% 50% at 15% 85%, rgba(80,130,220,0.06) 0%,transparent 55%), var(--c-bg)'
         : 'radial-gradient(ellipse 90% 55% at 80% 0%, rgba(196,154,90,0.12) 0%,transparent 50%), radial-gradient(ellipse 70% 50% at 10% 90%, rgba(95,184,232,0.08) 0%,transparent 55%), var(--c-bg)',
