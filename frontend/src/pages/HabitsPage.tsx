@@ -268,7 +268,7 @@ function AddHabitSheet({ onClose, onAdd, onSave, initialHabit }: {
               boxShadow: `0 4px 16px ${VIBRANT_GLOW[color] || VIBRANT_GLOW.default}`,
               transition: 'all 0.2s',
             }}>
-              <HabitIcon iconId={icon} color={col.accent} size={22} />
+              <HabitIcon iconId={icon} color={color === 'default' ? col.accent : 'rgba(255,255,255,0.92)'} size={22} />
             </button>
             <input ref={inputRef} type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Читать книгу" style={{ fontSize: 16, color: C.text, flex: 1 }} />
           </div>

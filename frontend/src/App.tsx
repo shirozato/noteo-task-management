@@ -335,30 +335,28 @@ export default function App() {
   // ─── Water API sync ────────────────────────────────────────────────────────
 
   const handleWaterAdd = async (dateKey: string, amount: number) => {
-    const tempEntry = { amount, time: Date.now() }
-    setWaterLog(w => ({
-      ...w,
-      [dateKey]: { entries: [...(w[dateKey]?.entries ?? []), tempEntry] },
-    }))
+    setWaterLog(w => {
+      const existing = w[dateKey]?.entries?.[0]
+      const newAmount = Math.min((existing?.amount ?? 0) + amount, 5000)
+      return { ...w, [dateKey]: { entries: [{ amount: newAmount, time: existing?.time ?? Date.now(), id: existing?.id }] } }
+    })
     apiLogWater(dateKey, amount)
       .then(({ id }) => {
-        setWaterLog(w => ({
-          ...w,
-          [dateKey]: {
-            entries: w[dateKey]?.entries.map(e =>
-              e.amount === amount && !e.id ? { ...e, id } : e
-            ) ?? [],
-          },
-        }))
+        setWaterLog(w => {
+          const existing = w[dateKey]?.entries?.[0]
+          if (!existing) return w
+          return { ...w, [dateKey]: { entries: [{ ...existing, id }] } }
+        })
       })
       .catch(() => {})
   }
 
   const handleWaterDelete = async (dateKey: string, entryId: number) => {
-    setWaterLog(w => ({
-      ...w,
-      [dateKey]: { entries: w[dateKey]?.entries.filter(e => e.id !== entryId) ?? [] },
-    }))
+    setWaterLog(w => {
+      const next = { ...w }
+      delete next[dateKey]
+      return next
+    })
     apiDeleteWaterEntry(entryId).catch(() => {})
   }
 

@@ -194,14 +194,13 @@ export default function TasksPage({
   onAdd: () => void
   onEdit: (t: Task) => void
 }) {
-  const [filter, setFilter] = useState<'today' | 'all' | 'important'>('today')
+  const [filter, setFilter] = useState<'today' | 'all'>('today')
   const today = new Date()
   const dateStr = today.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' }).toUpperCase()
 
   const live = tasks.filter(t => !t.archivedAt)
   const visible = live.filter(t =>
-    filter === 'today' ? !t.dueDate || t.dueDate === fmtDate(today) :
-    filter === 'important' ? t.priority === 'high' : true
+    filter === 'today' ? !t.dueDate || t.dueDate === fmtDate(today) : true
   )
   const active = visible.filter(t => !t.done)
   const done = visible.filter(t => t.done)
@@ -219,7 +218,7 @@ export default function TasksPage({
           {live.length > 0 && <AddBtn onPress={onAdd} />}
         </div>
         <div style={{ display: 'flex', gap: 4, marginTop: 12 }}>
-          {([['today', 'Сегодня'], ['all', 'Все'], ['important', 'Важные']] as const).map(([v, l]) => (
+          {([['today', 'Сегодня'], ['all', 'Все']] as const).map(([v, l]) => (
             <Pill key={v} active={filter === v} onClick={() => setFilter(v)}>{l}</Pill>
           ))}
         </div>
@@ -235,19 +234,19 @@ export default function TasksPage({
         )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {active.map(task => (
-            <GlassCard key={task.id} onClick={() => onEdit(task)} style={{ padding: '14px 16px', cursor: 'pointer', userSelect: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div onClick={e => { e.stopPropagation(); toggle(task.id) }} style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${C.borderHi}`, flexShrink: 0, cursor: 'pointer' }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: C.text }}>{task.title}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: prColor(task.priority) }} />
+            <GlassCard key={task.id} onClick={() => onEdit(task)} style={{ padding: '0', cursor: 'pointer', userSelect: 'none', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                <div style={{ width: 3, flexShrink: 0, background: prColor(task.priority) }} />
+                <div style={{ flex: 1, padding: '14px 16px 14px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div onClick={e => { e.stopPropagation(); toggle(task.id) }} style={{ width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${C.borderHi}`, flexShrink: 0, cursor: 'pointer' }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 15, fontWeight: 500, color: C.text }}>{task.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
                       <span style={{ fontSize: 12, color: C.textSub }}>{task.dueDate ? fmtDateDisplay(task.dueDate) : 'Сегодня'}</span>
+                      {task.tags.map(tag => (
+                        <span key={tag} style={{ fontSize: 11, color: C.textSub, background: C.s2, padding: '2px 8px', borderRadius: 8, border: `1px solid ${C.border}` }}>#{tag}</span>
+                      ))}
                     </div>
-                    {task.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, color: C.textSub, background: C.s2, padding: '2px 8px', borderRadius: 8, border: `1px solid ${C.border}` }}>#{tag}</span>
-                    ))}
                   </div>
                 </div>
               </div>

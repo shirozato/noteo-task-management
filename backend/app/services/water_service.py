@@ -10,6 +10,12 @@ class WaterService:
         self.repo = repo
 
     async def log_water(self, data: WaterEntryCreate, user_id: int) -> WaterEntry:
+        MAX_DAILY = 5000
+        existing_entries = await self.repo.get_by_date(user_id, data.date)
+        if existing_entries:
+            existing = existing_entries[0]
+            new_amount = min(existing.amount + data.amount, MAX_DAILY)
+            return await self.repo.update_by_id(existing.id, {"amount": new_amount})
         entry_data = data.model_dump()
         entry_data["user_id"] = user_id
         return await self.repo.create(entry_data)

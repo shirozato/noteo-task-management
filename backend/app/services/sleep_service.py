@@ -11,6 +11,11 @@ class SleepService:
         self.repo = repo
 
     async def add_sleep_info(self, data: SleepCreate, user_id: int) -> Sleep:
+        entry_date = data.bed_time.date()
+        existing = await self.repo.get_by_date(user_id, entry_date)
+        if existing:
+            sleep_data = data.model_dump()
+            return await self.repo.update(existing.uid, sleep_data)
         sleep_data = data.model_dump()
         sleep_data["user_id"] = user_id
         return await self.repo.create(sleep_data)
