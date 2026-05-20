@@ -381,7 +381,7 @@ export default function App() {
   }
 
   if (!introDone || !dataLoaded) return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 430, height: '100%', background: 'var(--c-bg)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
       <OnboardingScreen onDone={() => {
         localStorage.setItem('noteo-onboarded', '1')
         setIntroDone(true)
@@ -390,7 +390,7 @@ export default function App() {
   )
 
   if (!user) return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 430, height: '100%', background: 'var(--c-bg)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: -80, right: -60, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle,rgba(196,154,90,0.1),transparent 70%)', pointerEvents: 'none' }} />
       <AuthScreen onLogin={handleLogin} />
     </div>
@@ -413,13 +413,14 @@ export default function App() {
 
   return (
     <div style={{
-      width: '100%', maxWidth: 430,
-      height: '100dvh',
+      position: 'fixed',
+      top: 0, bottom: 0, left: 0, right: 0,
+      maxWidth: 430, margin: '0 auto',
       display: 'flex', flexDirection: 'column',
       background: theme === 'dark'
         ? 'radial-gradient(ellipse 80% 50% at 70% 5%, rgba(160,100,200,0.07) 0%,transparent 55%), radial-gradient(ellipse 70% 50% at 15% 85%, rgba(80,130,220,0.06) 0%,transparent 55%), var(--c-bg)'
         : 'radial-gradient(ellipse 90% 55% at 80% 0%, rgba(196,154,90,0.12) 0%,transparent 50%), radial-gradient(ellipse 70% 50% at 10% 90%, rgba(95,184,232,0.08) 0%,transparent 55%), var(--c-bg)',
-      overflow: 'hidden', position: 'relative',
+      overflow: 'hidden',
     }}>
       <div style={{ position: 'absolute', top: -100, right: -80, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(196,154,90,0.06),transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'absolute', bottom: 80, left: -100, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle,rgba(80,130,220,0.05),transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
