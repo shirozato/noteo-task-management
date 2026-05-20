@@ -33,7 +33,7 @@ function TabBar({ active, onChange, theme }: { active: TabId; onChange: (t: TabI
   const [pressed, setPressed] = useState<TabId | null>(null)
   return (
     <div style={{
-      padding: '0 14px', paddingBottom: 'max(env(safe-area-inset-bottom,0px),18px)', flexShrink: 0,
+      padding: '0 14px', paddingBottom: 'max(var(--safe-bottom, 0px), 18px)', flexShrink: 0,
       background: 'var(--c-tabbar)',
       backdropFilter: 'blur(50px) saturate(200%)', WebkitBackdropFilter: 'blur(50px) saturate(200%)',
     }}>
@@ -103,6 +103,34 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('noteo-theme', theme)
   }, [theme])
+
+  // iOS PWA fix: measure real viewport height + safe areas via JS
+  useEffect(() => {
+    // Probe env() values once
+    const probe = document.createElement('div')
+    probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);'
+    document.body.appendChild(probe)
+    const cs = getComputedStyle(probe)
+    const safeTop = cs.paddingTop || '0px'
+    const safeBottom = cs.paddingBottom || '0px'
+    document.body.removeChild(probe)
+    document.documentElement.style.setProperty('--safe-top', safeTop)
+    document.documentElement.style.setProperty('--safe-bottom', safeBottom)
+
+    const updateVh = () => {
+      const h = window.visualViewport?.height ?? window.innerHeight
+      document.documentElement.style.setProperty('--app-vh', `${h}px`)
+    }
+    updateVh()
+    window.addEventListener('resize', updateVh)
+    window.addEventListener('orientationchange', updateVh)
+    window.visualViewport?.addEventListener('resize', updateVh)
+    return () => {
+      window.removeEventListener('resize', updateVh)
+      window.removeEventListener('orientationchange', updateVh)
+      window.visualViewport?.removeEventListener('resize', updateVh)
+    }
+  }, [])
 
   const [showArchive, setShowArchive] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
@@ -381,7 +409,7 @@ export default function App() {
   }
 
   if (!introDone || !dataLoaded) return (
-    <div style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) * -1)', bottom: 'calc(env(safe-area-inset-bottom, 0px) * -1)', left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--app-vh, 100dvh)', maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden', paddingTop: 'var(--safe-top, 0px)' }}>
       <OnboardingScreen onDone={() => {
         localStorage.setItem('noteo-onboarded', '1')
         setIntroDone(true)
@@ -390,7 +418,7 @@ export default function App() {
   )
 
   if (!user) return (
-    <div style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) * -1)', bottom: 'calc(env(safe-area-inset-bottom, 0px) * -1)', left: 0, right: 0, maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 'var(--app-vh, 100dvh)', maxWidth: 430, margin: '0 auto', background: 'var(--c-bg)', overflow: 'hidden', paddingTop: 'var(--safe-top, 0px)' }}>
       <div style={{ position: 'absolute', top: -80, right: -60, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle,rgba(196,154,90,0.1),transparent 70%)', pointerEvents: 'none' }} />
       <AuthScreen onLogin={handleLogin} />
     </div>
@@ -414,12 +442,11 @@ export default function App() {
   return (
     <div style={{
       position: 'fixed',
-      top: 'calc(env(safe-area-inset-top, 0px) * -1)',
-      bottom: 'calc(env(safe-area-inset-bottom, 0px) * -1)',
-      left: 0, right: 0,
+      top: 0, left: 0, right: 0,
+      height: 'var(--app-vh, 100dvh)',
       maxWidth: 430, margin: '0 auto',
       display: 'flex', flexDirection: 'column',
-      paddingTop: 'env(safe-area-inset-top, 0px)',
+      paddingTop: 'var(--safe-top, 0px)',
       background: theme === 'dark'
         ? 'radial-gradient(ellipse 80% 50% at 70% 5%, rgba(160,100,200,0.07) 0%,transparent 55%), radial-gradient(ellipse 70% 50% at 15% 85%, rgba(80,130,220,0.06) 0%,transparent 55%), var(--c-bg)'
         : 'radial-gradient(ellipse 90% 55% at 80% 0%, rgba(196,154,90,0.12) 0%,transparent 50%), radial-gradient(ellipse 70% 50% at 10% 90%, rgba(95,184,232,0.08) 0%,transparent 55%), var(--c-bg)',
