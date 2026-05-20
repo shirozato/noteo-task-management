@@ -409,7 +409,8 @@ export default function App() {
 
   return (
     <div style={{
-      width: '100%', maxWidth: 430, height: '100%',
+      width: '100%', maxWidth: 430,
+      height: '100dvh',
       display: 'flex', flexDirection: 'column',
       background: theme === 'dark'
         ? 'radial-gradient(ellipse 80% 50% at 70% 5%, rgba(160,100,200,0.07) 0%,transparent 55%), radial-gradient(ellipse 70% 50% at 15% 85%, rgba(80,130,220,0.06) 0%,transparent 55%), var(--c-bg)'

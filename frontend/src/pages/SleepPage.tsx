@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { C, DAYS_SHORT, fmtDate, toMin, timeToDeg, degToTime, minToTime } from '../tokens'
-import { GlassCard, SheetHandle, SectionLabel, Pill } from '../components/ui'
+import { GlassCard, SheetHandle, SectionLabel, Pill, useSheetSwipe } from '../components/ui'
 import type { SleepLog } from '../types'
 
 const SLEEP_BLUE = '#7aaad8'
@@ -62,6 +62,7 @@ function TimeDrumPicker({ value, label, accentColor, onConfirm, onClose }: { val
   const hours = Array.from({ length: 24 }, (_, i) => i)
   const minutes = Array.from({ length: 12 }, (_, i) => i * 5)
   const mIdx = minutes.indexOf(selM) >= 0 ? minutes.indexOf(selM) : 0
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
 
   const confirm = () => { onConfirm(`${String(selH).padStart(2, '0')}:${String(selM).padStart(2, '0')}`); onClose() }
 
@@ -72,9 +73,9 @@ function TimeDrumPicker({ value, label, accentColor, onConfirm, onClose }: { val
         position: 'fixed', bottom: 0, left: 0, right: 0, margin: '0 auto',
         width: '100%', maxWidth: 430, background: 'var(--c-sheet)', borderTop: `1px solid ${C.borderHi}`,
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 201, animation: 'slideUp 0.32s cubic-bezier(0.32,0.72,0,1)',
-        display: 'flex', flexDirection: 'column',
+        display: 'flex', flexDirection: 'column', ...dragStyle,
       }}>
-        <SheetHandle />
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '0 24px' }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: C.textSub, textAlign: 'center', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>{label}</div>
           <div style={{ display: 'flex', alignItems: 'center' }}>

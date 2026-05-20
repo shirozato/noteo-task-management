@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { C, DAYS_SHORT, MONTHS_RU, fmtDate, fmtDateDisplay, NOW } from '../tokens'
-import { GlassCard, SheetHandle, SectionLabel, AddBtn, Pill } from '../components/ui'
+import { GlassCard, SheetHandle, SectionLabel, AddBtn, Pill, useSheetSwipe } from '../components/ui'
 import type { Task } from '../types'
 
 export function AddTaskSheet({ onClose, onAdd, onSave, onArchive, onDelete, onToggleDone, initialTask }: {
@@ -21,6 +21,7 @@ export function AddTaskSheet({ onClose, onAdd, onSave, onArchive, onDelete, onTo
   const [selectedDate, setSelectedDate] = useState<Date | null>(initialTask?.dueDate ? new Date(initialTask.dueDate + 'T00:00') : (!isEdit ? new Date() : null))
   const [viewMonth, setViewMonth] = useState(new Date())
   const inputRef = useRef<HTMLInputElement>(null)
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
 
   useEffect(() => { if (!isEdit) setTimeout(() => inputRef.current?.focus(), 350) }, [])
 
@@ -55,9 +56,9 @@ export function AddTaskSheet({ onClose, onAdd, onSave, onArchive, onDelete, onTo
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 101,
         animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
         paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
-        maxHeight: '90vh', overflowY: 'auto',
+        maxHeight: '90vh', overflowY: 'auto', ...dragStyle,
       }}>
-        <SheetHandle />
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '12px 20px 24px' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 18 }}>{isEdit ? 'Редактировать' : 'Новая задача'}</div>
 

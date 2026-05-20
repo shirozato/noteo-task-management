@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import { C, WATER_C, DAYS_SHORT, MONTHS_RU, fmtDate, NOW } from '../tokens'
-import { GlassCard } from '../components/ui'
+import { GlassCard, SheetHandle, useSheetSwipe } from '../components/ui'
 import type { WaterLog } from '../types'
 
 // ─── WAVE GLASS ───────────────────────────────────────────────────────────────
@@ -140,6 +140,7 @@ function dayActionBtnStyle(primary?: boolean): React.CSSProperties {
 function WaterCustomSheet({ onClose, onAdd, initial }: { onClose: () => void; onAdd: (ml: number) => void; initial?: number }) {
   const [val, setVal] = useState(initial || 250)
   const [pulse, setPulse] = useState(false)
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
 
   const bump = (delta: number) => {
     setVal(v => Math.round(Math.max(50, Math.min(3000, (v || 0) + delta)) / 10) * 10)
@@ -157,11 +158,9 @@ function WaterCustomSheet({ onClose, onAdd, initial }: { onClose: () => void; on
         background: 'var(--c-sheet)', borderTop: `1px solid ${C.borderHi}`,
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 301,
         animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
-        paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)', ...dragStyle,
       }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: C.s3 }} />
-        </div>
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '12px 22px 22px' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4 }}>Свой объём</div>
           <div style={{ fontSize: 13, color: C.textMute, marginBottom: 22 }}>Сколько воды добавить</div>
@@ -214,6 +213,7 @@ function WaterDayEditSheet({ date, entries, onClose, onAdd, onRemove }: {
   onRemove: (idx: number) => void
 }) {
   const [showCustom, setShowCustom] = useState(false)
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
   const total = entries.reduce((a, b) => a + b.amount, 0)
   const dateLabel = date.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })
 
@@ -226,11 +226,9 @@ function WaterDayEditSheet({ date, entries, onClose, onAdd, onRemove }: {
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 251,
         animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
         paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
-        maxHeight: '85vh', display: 'flex', flexDirection: 'column',
+        maxHeight: '85vh', display: 'flex', flexDirection: 'column', ...dragStyle,
       }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: C.s3 }} />
-        </div>
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '12px 22px 0' }}>
           <div style={{ fontSize: 11, color: C.textMute, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{dateLabel}</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4, marginBottom: 18 }}>
@@ -288,6 +286,7 @@ function WaterGoalSheet({ goal, unit, reminders, onSave, onClose, onRemindersCha
 }) {
   const [g, setG] = useState(goal)
   const [u, setU] = useState(unit)
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
   const sliderRef = useRef<HTMLDivElement>(null)
   const min = 500, max = 5000, step = 100
   const pct = (g - min) / (max - min)
@@ -317,11 +316,9 @@ function WaterGoalSheet({ goal, unit, reminders, onSave, onClose, onRemindersCha
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 251,
         animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
         paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
-        maxHeight: '90vh', overflowY: 'auto',
+        maxHeight: '90vh', overflowY: 'auto', ...dragStyle,
       }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: C.s3 }} />
-        </div>
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '12px 22px 22px' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4 }}>Настройки воды</div>
           <div style={{ fontSize: 13, color: C.textMute, marginBottom: 22 }}>Цель, единицы и напоминания</div>

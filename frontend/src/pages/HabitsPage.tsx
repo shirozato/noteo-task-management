@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { C, HABIT_COLORS, DAYS_SHORT, MONTHS_RU, NOW } from '../tokens'
-import { GlassCard, SheetHandle, AddBtn } from '../components/ui'
+import { GlassCard, SheetHandle, AddBtn, useSheetSwipe } from '../components/ui'
 import { HabitIcon, HABIT_ICON_DEFS } from '../components/HabitIcons'
 import type { Habit } from '../types'
 
@@ -166,6 +166,7 @@ function HabitCard({ habit, onToggle, onTap }: { habit: Habit; onToggle: () => v
 
 function IconPickerSheet({ selected, onSelect, onClose }: { selected: string; onSelect: (id: string) => void; onClose: () => void }) {
   const [tempSel, setTempSel] = useState(selected)
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
   return createPortal(
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 200, animation: 'fadeIn 0.2s' }} />
@@ -175,9 +176,9 @@ function IconPickerSheet({ selected, onSelect, onClose }: { selected: string; on
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 201,
         animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
         paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
-        maxHeight: '88vh', display: 'flex', flexDirection: 'column',
+        maxHeight: '88vh', display: 'flex', flexDirection: 'column', ...dragStyle,
       }}>
-        <SheetHandle />
+        <SheetHandle dragProps={handleProps} />
         <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px 18px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 10 }}>
             {HABIT_ICON_DEFS.map(def => {
@@ -221,6 +222,7 @@ function AddHabitSheet({ onClose, onAdd, onSave, initialHabit }: {
   const [reminder, setReminder] = useState(false)
   const [iconPicker, setIconPicker] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
 
   useEffect(() => { setTimeout(() => inputRef.current?.focus(), 350) }, [])
 
@@ -245,9 +247,9 @@ function AddHabitSheet({ onClose, onAdd, onSave, initialHabit }: {
         borderTopLeftRadius: 28, borderTopRightRadius: 28, zIndex: 101,
         animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
         paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
-        maxHeight: '92vh', overflowY: 'auto',
+        maxHeight: '92vh', overflowY: 'auto', ...dragStyle,
       }}>
-        <SheetHandle />
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '8px 20px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
             <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.text, fontSize: 22, lineHeight: '1', padding: '4px 8px 4px 0' }}>‹</button>
@@ -361,6 +363,7 @@ function HabitInfoSheet({ habit, onClose, onEdit, onArchive, onDelete, onToggle 
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const col = HABIT_COLORS[habit.color] || HABIT_COLORS.default
+  const { dragStyle, handleProps } = useSheetSwipe(onClose)
   const vGlow = VIBRANT_GLOW[habit.color] || VIBRANT_GLOW.default
   const done = habit.completedToday
   const today = new Date(); today.setHours(0, 0, 0, 0)
@@ -392,9 +395,9 @@ function HabitInfoSheet({ habit, onClose, onEdit, onArchive, onDelete, onToggle 
         borderTop: `1px solid ${C.borderHi}`, borderTopLeftRadius: 28, borderTopRightRadius: 28,
         zIndex: 101, animation: 'slideUp 0.4s cubic-bezier(0.32,0.72,0,1)',
         paddingBottom: 'max(env(safe-area-inset-bottom,0px),20px)',
-        maxHeight: '90vh', overflowY: 'auto',
+        maxHeight: '90vh', overflowY: 'auto', ...dragStyle,
       }} onClick={e => e.stopPropagation()}>
-        <SheetHandle />
+        <SheetHandle dragProps={handleProps} />
         <div style={{ padding: '4px 20px 20px', position: 'relative' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ position: 'relative' }}>

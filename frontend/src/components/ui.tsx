@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useRef, useState, useCallback } from 'react'
 import { C } from '../tokens'
 
 export function GlassCard({ children, style, onClick }: { children: React.ReactNode; style?: CSSProperties; onClick?: () => void }) {
@@ -11,9 +11,44 @@ export function GlassCard({ children, style, onClick }: { children: React.ReactN
   )
 }
 
-export function SheetHandle() {
+export function useSheetSwipe(onClose: () => void, threshold = 90) {
+  const [dy, setDy] = useState(0)
+  const startY = useRef(0)
+  const active = useRef(false)
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    startY.current = e.touches[0].clientY
+    active.current = true
+  }, [])
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!active.current) return
+    const delta = e.touches[0].clientY - startY.current
+    if (delta > 0) setDy(delta)
+  }, [])
+
+  const onTouchEnd = useCallback(() => {
+    active.current = false
+    if (dy > threshold) {
+      setDy(0)
+      onClose()
+    } else {
+      setDy(0)
+    }
+  }, [dy, threshold, onClose])
+
+  return {
+    dragStyle: {
+      transform: `translateY(${dy}px)`,
+      transition: dy > 0 ? 'none' : 'transform 0.35s cubic-bezier(0.32,0.72,0,1)',
+    } as CSSProperties,
+    handleProps: { onTouchStart, onTouchMove, onTouchEnd },
+  }
+}
+
+export function SheetHandle({ dragProps }: { dragProps?: React.HTMLAttributes<HTMLDivElement> }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px', touchAction: 'none' }} {...dragProps}>
       <div style={{ width: 36, height: 4, borderRadius: 2, background: C.s3 }} />
     </div>
   )

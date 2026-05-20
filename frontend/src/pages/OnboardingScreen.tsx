@@ -369,16 +369,27 @@ const SLIDES = [
 
 export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [slide, setSlide] = useState(0)
+  const touchStartX = useRef(0)
   const cur = SLIDES[slide]
   const next = () => slide < SLIDES.length - 1 ? setSlide(slide + 1) : onDone()
 
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (dx < -50 && slide < SLIDES.length - 1) setSlide(s => s + 1)
+    else if (dx > 50 && slide > 0) setSlide(s => s - 1)
+  }
+
   return (
-    <div style={{
-      position: 'absolute', inset: 0,
-      display: 'flex', flexDirection: 'column',
-      background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,154,90,0.08) 0%, transparent 60%), #0d0d0d',
-      animation: 'fadeIn 0.4s ease',
-    }}>
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,154,90,0.08) 0%, transparent 60%), #0d0d0d',
+        animation: 'fadeIn 0.4s ease',
+      }}>
       <div style={{ padding: '20px 22px', display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
         <button onClick={onDone} style={{ background: 'none', border: 'none', color: C.textSub, fontSize: 14, cursor: 'pointer', padding: '6px 4px' }}>
           Пропустить
