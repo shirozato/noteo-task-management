@@ -8,9 +8,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = "Noteo"
-    debug: bool = True
-    database_url: str = "postgresql+asyncpg://admin:1209348756@localhost:5432/noteo"
+    app_name: str 
+    debug: bool 
+    database_url: str
     cors_origins: list = [
         # Local dev
         "http://localhost:5173",
@@ -31,9 +31,9 @@ class Settings(BaseSettings):
         "https://api.noteo.online",
     ]
 
-    jwt_secret: str = "change-me-in-production"
-    jwt_algorithm: str = "HS256"
-    jwt_access_expire_minutes: int = 60 * 24 * 30  # 30 days
+    jwt_secret: str 
+    jwt_algorithm: str
+    jwt_access_expire_minutes: int
 
 
 settings = Settings()
